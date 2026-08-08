@@ -9,7 +9,7 @@
       "Edit(./CLAUDE.local.md)"
     ],
     "allow": [
-      "Edit(./.claude/memory/**)",
+      "Edit",
       "Write",
       "Read",
       "WebFetch",

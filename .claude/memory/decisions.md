@@ -30,7 +30,50 @@ Google Flow ใช้ฟรีได้ · SayToWords ใช้ฟรีได�
 custom thumbnail และคลิปยาวเกิน 15 นาที = **Intermediate** (ยืนยันเบอร์โทรพอ)
 **Advanced** ต้องใช้ตอนสมัคร monetization
 
+## BGM ประจำช่อง: "Wager With Angels" — Nathan Moore
+
+**ไฟล์ต้นฉบับ (commit ไว้แล้ว):** `assets/bgm/wager_with_angels.mp3`
+
+จาก YouTube Audio Library · **ไม่ต้องใส่เครดิต** (กดดาวน์โหลดแล้วไม่มี popup ขอ attribution)
+ต้นฉบับยาว 2:49 (169.4 วิ) — ทุกคลิปให้ **loop ด้วย crossfade 3 วิ** ต่อให้ยาวคลุมคลิป แล้วตัดพอดีความยาวเสียงพากย์
+ตั้ง **volume 10%** บน track (อยู่ในช่วง 8–12% ที่ Blueprint V4 กำหนด) · fade in 2 วิ · fade out 3 วิ
+
+**เชนที่ใช้:**
+```
+ffmpeg -i bgm.mp3 -i bgm.mp3 -i bgm.mp3 -i bgm.mp3 -filter_complex \
+  "[0][1]acrossfade=d=3:c1=tri:c2=tri[a01]; [a01][2]acrossfade=d=3:c1=tri:c2=tri[a012]; [a012][3]acrossfade=d=3:c1=tri:c2=tri[looped]" \
+  -map "[looped]" looped.wav
+# ตัดให้พอดีความยาวเสียงพากย์ + afade in/out + alimiter=limit=0.95:level=disabled กันพีคตรงรอย crossfade
+```
+
+**บทเรียน:** acrossfade ระหว่างสำเนาเดียวกันหลายรอบทำให้ peak ทะลุ 0dBFS เล็กน้อยได้ (เจอ +0.2 dBFS) ต้องใส่ alimiter ปิดท้ายเสมอแม้จะรู้ว่าจะลด volume เหลือ 10% ใน CapCut อยู่แล้วก็ตาม — สร้างนิสัยให้ไฟล์สะอาดในตัวเองก่อนส่งต่อ
+
+**วันที่:** 2026-08-08
+
+## End credit ประจำช่อง — ใช้ซ้ำทุกคลิป
+
+ต่อท้ายวิดีโอทุกคลิปด้วย **2 การ์ด 6 วินาทีต่อใบ (รวม 12 วิ)** สร้างด้วย PIL เอง (ไม่ผ่าน Google Flow เพราะเป็นการ์ดข้อความ/ไอคอน ไม่ใช่ฉากบรรยาย) ยึด Style Bible เดิม (พาเลตต์หม่นเอิร์ธโทน พื้นหลังแบ่งเส้นขอบฟ้า เส้นบาง)
+
+| การ์ด | เนื้อหา |
+|---|---|
+| 1 — SOURCES | รายชื่องานวิจัยที่อ้างในบท (ชื่อผู้แต่ง ปี วารสาร ตาม Character/Style Bible ข้อความ ALL CAPS อังกฤษ) |
+| 2 — THANK YOU FOR WATCHING | สติ๊กฟิกเกอร์ `@you` โบกมือ (ตาม Character Bible) + ไอคอนกระดิ่งแบบเส้น + ข้อความ SUBSCRIBE + @ROONCON |
+
+**BGM ช่วง end credit ให้ดังขึ้นเป็น 40%** (จากเดิม 10% ตอนมีเสียงพากย์แข่ง) เพราะไม่มีเสียงพูดแล้ว ใช้ไฟล์เพลงเดียวกันต่อเนื่องไม่มีรอยตัด (ต่อจากท้ายเสียงพากย์พอดี ไม่ใช่เริ่มเพลงใหม่)
+
+**ไฟล์สคริปต์สร้างการ์ด (commit ไว้แล้ว):** `assets/end_credit/make_end_credit_cards.py`
+
+```bash
+python3 assets/end_credit/make_end_credit_cards.py \
+  --citations work/00X-clip-name/citations.json \
+  --out-sources work/00X-clip-name/final_upscaled/HH_MM_SS.jpeg \
+  --out-thanks  work/00X-clip-name/final_upscaled/HH_MM_SS.jpeg
+```
+
+การ์ด THANK YOU คงที่ทุกคลิป ไม่ต้องแก้ — การ์ด SOURCES ต้องส่ง `--citations` เป็นไฟล์ JSON ใหม่ทุกคลิป (ดู docstring ในสคริปต์สำหรับรูปแบบ) ถ้าไม่ส่งจะ fallback ไปใช้รายการของคลิป 002
+
+**วันที่:** 2026-08-08
+
 ## เรื่องที่ยังไม่ตัดสิน
 
 - ยังไม่จดทะเบียนบริษัท — รอดูรายได้จริงก่อน
-- ยังไม่เลือก BGM ประจำช่อง
