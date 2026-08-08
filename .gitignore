@@ -1,0 +1,25 @@
+# ความจำส่วนตัวที่ไม่แชร์ — โปรเจกต์นี้ห้ามใช้ ใส่ไว้กันเผลอ
+CLAUDE.local.md
+.claude/settings.local.json
+
+# ไฟล์สื่อขนาดใหญ่ อย่า commit
+*.mp4
+*.mov
+*.wav
+*.mp3
+*.jpeg
+*.jpg
+*.png
+
+# ยกเว้น thumbnail ที่ใช้จริง
+!thumbnail/*.jpg
+
+# CapCut draft
+draft*/
+*.tmp
+
+.DS_Store
+
+# ไฟล์งานของแต่ละคลิป — ใหญ่เกินกว่าจะ commit
+work/*
+!work/.gitkeep
