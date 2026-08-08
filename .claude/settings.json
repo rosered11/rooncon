@@ -9,11 +9,11 @@
       "Edit(./CLAUDE.local.md)"
     ],
     "allow": [
-      "Write(./.claude/memory/**)",
       "Edit(./.claude/memory/**)",
-      "Bash(ffmpeg:*)",
-      "Bash(ffprobe:*)",
-      "Bash(tesseract:*)"
+      "Write",
+      "Read",
+      "WebFetch",
+      "Bash"
     ]
   }
 }

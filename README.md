@@ -44,3 +44,9 @@ CLAUDE.md                  กฎระดับโปรเจกต์ + ก�
 → gen ภาพ (Google Flow) → QC ภาพ [image-qc]
 → ตัดต่อ (CapCut) → metadata → อัปโหลด
 ```
+
+## เสียงที่ใช้
+
+```
+Liam
+```
