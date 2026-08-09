@@ -39,7 +39,7 @@
 1 หาหัวข้อ [content-research] → 2 บท → 3 เสียง (ElevenLabs) → 4 มาสเตอร์เสียง [audio-master]
 → 5 ถอด SRT (SayToWords) → 6 Timecode Map + ซับ [timecode-builder]
 → 7 gen ภาพ (Google Flow) → 8 QC ภาพ [image-qc]
-→ 9 ตัดต่อ (CapCut) → 10 metadata + อัปโหลด
+→ 9 ตัดต่อ (CapCut) [capcut-edit] → 10 metadata + อัปโหลด
 ```
 
 ## Skill ในโปรเจกต์นี้
@@ -50,6 +50,7 @@
 | `audio-master` | ขั้น 4 | `.claude/skills/audio-master/SKILL.md` |
 | `timecode-builder` | ขั้น 6 | `.claude/skills/timecode-builder/SKILL.md` |
 | `image-qc` | ขั้น 8 | `.claude/skills/image-qc/SKILL.md` |
+| `capcut-edit` | ขั้น 9 | `.claude/skills/capcut-edit/SKILL.md` |
 
 ## Subagent
 
@@ -59,6 +60,7 @@
 | `video-audio` | audio-master |
 | `video-timecode` | timecode-builder |
 | `video-imageqc` | image-qc |
+| `video-capcut` | capcut-edit |
 
 agent มี context แยกจากบทสนทนาหลัก ต้องบอกพาธไฟล์ให้ครบทุกครั้ง
 
