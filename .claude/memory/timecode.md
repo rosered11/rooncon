@@ -219,3 +219,38 @@ Read tool แสดงผลแบบ `cat -n` (เติมเลขบรร�
 **ยืนยันเพิ่ม:** `root draft_info.json` และ `Timelines/<UUID>/draft_info.json` ของ `003_giraffe_neck` มี segment id/order ตรงกัน 100% (diff เปล่า) ก่อนแก้ — เขียนสคริปต์แก้ทั้งสองไฟล์แยกรอบด้วย logic เดียวกัน (ส่ง random indices ชุดเดียวกันไปทั้งคู่ผ่านตัวแปรกลาง ไม่สุ่มซ้ำสองรอบ) เพื่อการันตีว่าช็อตที่ได้ keyframe ตรงกันทั้งสองไฟล์เป๊ะ — ตรวจ post-hoc ด้วย `diff` ของ list id ที่มี `common_keyframes` ไม่ว่างระหว่างสองไฟล์ ผ่าน (MATCH)
 
 **วันที่:** 2026-08-09
+
+## บทเรียน: แก้ speed เฉพาะ segment เดียว (ไม่แตะ track อื่น) ต้องเช็คว่า speed material ถูกใช้ร่วมกับ segment อื่นหรือไม่ก่อนแก้
+
+เคสจริง: ทดสอบเปลี่ยนเสียงพากย์ของ `003_giraffe_neck` จาก `speed=1.1` กลับเป็น `1.0` ชั่วคราวเพื่อฟังเทียบว่าเสียงแตก/เพี้ยนมาจากอัลกอริทึมเร่งความเร็วของ CapCut หรือไม่ — งานแบบนี้ต้องแก้ **แค่ segment เดียว** โดยไม่กระทบ segment อื่นที่อาจ share material เดียวกัน
+
+**วิธีระบุ material ที่ปลอดภัยจะแก้ (ไม่ใช่เดา):**
+1. หา segment เป้าหมายจาก `material_id` ที่ชี้ไปไฟล์เสียงจริง (เช่น `ElevenLabs_003_mastered.wav`) ผ่าน `.tracks[].segments[] | select(.material_id==...)`
+2. ในบรรดา `extra_material_refs` ของ segment นั้น หาตัวที่อยู่ใน `materials.speeds[]` โดยกรองด้วยค่า `speed` ที่ตรงกับ `segment.speed` ปัจจุบัน (เช่น `speed==1.1`) แทนการเดา index/ตำแหน่งในลิสต์ — `materials.speeds[]` มีหลายสิบรายการ ส่วนใหญ่เป็น `speed:1.0` (default ของ segment ภาพ) มีแค่ตัวเดียวที่ตรงกับ 1.1 พอดีในเคสนี้
+3. **ก่อนแก้ ต้องเช็คว่า speed material id นั้นถูกอ้างโดย segment อื่นด้วยหรือไม่**: `jq --arg id "<speed_material_id>" '[.tracks[].segments[] | select(.extra_material_refs[]? == $id)]'` — ถ้าเจอมากกว่า 1 segment ห้ามแก้ material ร่วมตรง ๆ (จะกระทบ segment อื่นโดยไม่ตั้งใจ) ต้อง clone material ใหม่แยกให้ segment เป้าหมายอ้างอิงเอง แล้วค่อยแก้ตัวโคลน — เคสนี้เช็คแล้วพบว่า material ผูกกับ segment เดียว (1:1) จึงแก้ตรงได้เลยโดยปลอดภัย
+4. เปลี่ยน `segment.speed` ให้ตรงกับ material ที่แก้ไปด้วยเสมอ (สอง field ต้องซิงค์กัน — CapCut เก็บ speed ซ้ำสองที่: ใน segment เองและใน material speeds ที่ extra_material_refs ชี้ไป)
+5. เมื่อ speed=1.0 ความยาว `target_timerange.duration` ต้องเท่ากับ `source_timerange.duration` เต็มไฟล์เสมอ (ไม่มีการเร่ง/ผ่อนความเร็วแล้ว)
+6. ตรวจสอบผลด้วย `diff <(jq -S . ก่อนแก้) <(jq -S . หลังแก้)` ต้องเห็นแค่บรรทัดที่ตั้งใจแก้เท่านั้น (เคสนี้คือ 3 บรรทัดเป๊ะ: speed ในสอง object + target duration 1 ค่า) เป็นวิธี sanity check ที่แม่นกว่าการอ่านด้วยตา
+
+**หมายเหตุ:** top-level `duration` ของ project (`data["duration"]` ที่ root ของ draft_info.json) **ไม่ได้ปรับตามความยาว track เสียงที่ยาวขึ้นอัตโนมัติ** — เคสทดสอบนี้ตั้งใจปล่อยไว้ตามเดิม (502.42s) ในขณะที่เสียงพากย์ยาวจริง 552.63s เพราะเป็นการทดสอบฟังเสียงชั่วคราว ไม่ใช่ค่าสุดท้าย — **ยังไม่ยืนยันว่า CapCut จะเล่นเสียงเกินขอบ project duration เดิมได้เต็มหรือไม่ ต้องรอดูตอนเปิดแอปจริง** ถ้าจะใช้ค่านี้เป็นค่าจริงถาวร (ไม่ใช่แค่ทดสอบ) ต้องอัปเดต top-level `duration` ให้ตรงกับ track ที่ยาวที่สุดด้วย
+
+**วันที่:** 2026-08-10
+
+## บทเรียน: เสียงแตกจาก CapCut speed engine เรียลไทม์ — แก้ถาวรด้วยการเร่งไฟล์นอก CapCut แล้ว import แทน speed field
+
+คลิป 003 (giraffe-neck) เจอเสียงแตกตอนตั้ง `segment.speed = 1.1` ให้ CapCut เร่งความเร็วเสียงพากย์เรียลไทม์เอง — ทดสอบ `speed = 1.0` แล้วเสียงสะอาด ยืนยันว่าเสียงแตกมาจาก speed engine ของ CapCut เอง ไม่ใช่ปัญหาไฟล์ต้นทาง
+
+**ทางแก้ถาวร:** เร่งความเร็วไฟล์เสียงพากย์มาสเตอร์แล้วด้วย `ffmpeg atempo=1.1` นอก CapCut ก่อน (ได้ไฟล์ `*_110x.wav`) แล้ว import เป็น material ใหม่ ตั้ง `segment.speed = 1.0` (ไม่เร่งซ้ำ) — `source_timerange.duration` และ `target_timerange.duration` ของ segment ต้องเท่ากับความยาวไฟล์ 110x จริง (วัดด้วย `wave` module ไม่ใช่ ffprobe ตามบทเรียนเดิม)
+
+**ขั้นตอนแก้ segment เสียงพากย์ให้ชี้ไฟล์ใหม่ (ยืนยันวิธีที่ปลอดภัย):**
+1. หา segment id เดิม + material_id เดิมที่ segment ชี้ไป
+2. เช็คว่า material นั้น (และ speed material ใน `extra_material_refs`) ถูกใช้กับ segment เดียวนี้เท่านั้น (นับจำนวน segment ที่อ้างถึงแต่ละ id) ก่อนแก้ กันกระทบ segment อื่นที่ share material เดียวกันโดยไม่รู้ตัว
+3. **โคลน material entry เดิมเป็นก้อนใหม่** (deep copy) เปลี่ยนแค่ `id` (uuid4 ใหม่), `unique_id`, `local_material_id`, `music_id`, `name`, `path`, `duration` — อย่าแก้ path ของ material เดิมตรง ๆ เพราะจะเสียของเดิมไว้ทดสอบย้อนกลับไม่ได้ถ้าจำเป็น
+4. แก้ segment: `material_id` ชี้ไป material ใหม่, `speed` เป็น 1.0, `source_timerange.duration` และ `target_timerange.duration` เท่ากับ duration ของไฟล์ใหม่จริง
+5. Speed material ใน `extra_material_refs` ตั้ง `speed: 1.0` (ถ้าเดิมเป็น 1.0 อยู่แล้วจากการทดสอบรอบก่อนไม่ต้องแตะ)
+
+**วิธีตรวจสอบว่าแก้แค่จุดที่ตั้งใจ:** เทียบ segment id list ของทุก track ระหว่างไฟล์ก่อน/หลังแก้ (ต้อง identical ทั้ง type/count/order) แล้วไล่ diff เนื้อหา segment ทีละตัวด้วย id เดียวกัน — ถ้ามี segment อื่นเปลี่ยนไปโดยไม่ตั้งใจจะเห็นทันที (ในเคสนี้ยืนยันว่าเปลี่ยนแค่ segment เสียงพากย์ 1 ตัวจากทั้งหมด 218 segment ในโปรเจกต์)
+
+**บั๊กที่ต้องระวังตอนเขียนสคริปต์ query ตรวจสอบ (ไม่ใช่บั๊กในไฟล์ draft):** เขียน loop ซ้อน `for track in tracks: if track['type']=='audio': for seg in track['segments']: if seg matches...` แล้วใช้ตัวแปร `seg` ต่อนอกลูปเพื่ออ้างอิง — ตัวแปรจะถูก overwrite เป็น segment ตัวสุดท้ายที่ loop ผ่าน (อาจเป็นคนละ track ที่ type ตรงกันแต่ id ไม่ตรง) ไม่ใช่ตัวที่ match เงื่อนไข ทำให้ debug หลงประเด็นไปเช็ค material ผิดตัว (เจอตอนเช็คว่า voice segment ชี้ไปไฟล์ไหน ดันไปได้ข้อมูล bgm.wav แทน) — **ต้องเก็บผลลัพธ์ที่ match เงื่อนไขไว้ในตัวแปรแยกต่างหาก (เช่น `voice_seg = seg` เฉพาะตอน if เข้าเงื่อนไข) ไม่ใช้ตัวแปร loop เดิมอ้างอิงต่อนอกลูป**
+
+**วันที่:** 2026-08-10
