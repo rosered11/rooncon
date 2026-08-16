@@ -83,3 +83,17 @@ alimiter=limit=0.891:level=disabled
 
 **ที่มา:** `work/003-giraffe-neck/ElevenLabs_sound.wav` → `ElevenLabs_mastered.wav`
 **วันที่:** 2026-08-09
+
+## คลิป 004 (cheater-detection) — LRA ต่ำกว่า 3 อีกเคส + ตัดช่วงเงียบยาวเกินเกณฑ์ 2026-08-15
+
+`work/004-cheater-detection/ElevenLabs_sound.wav` วัดต้นทางได้ **I -19.2 LUFS · LRA 2.8 · true peak -0.5 dBFS · clipped 0** — เหมือนเคสคลิป 003 (ElevenLabs ส่งออกที่ LRA ต่ำกว่า 3 ตั้งแต่ต้น) จึง**ข้าม compressor ตามกฎ LRA < 3** รันแค่ `loudnorm=I=-13.2:TP=-1.2:LRA=3,alimiter=limit=0.891:attack=5:release=50:level=disabled` ตัวเดียว
+
+**ผลหลัง loudnorm (ก่อนตัดเงียบ):** I -14.9 LUFS · LRA 2.6 · true peak -1.2 dBFS · clipped 0 — ผ่านทุกข้อรอบเดียว ไม่ต้องลด I= เพิ่ม
+
+**ช่วงเงียบ:** วัดได้ 164 ช่วง เฉลี่ย **0.518s** (เกิน 0.40s เป้าหมาย) max 1.14s → หดตามอัลกอริทึม CAP_NORMAL=0.35/CAP_LONG=0.90/EDGE=0.06/RAMP=4ms พบรอยต่อบทจริง (>=1.00s) 4 จุด เก็บไว้ที่ 0.90s ตามกฎ ช่วงสั้นกว่า 122 จุดหดเหลือ 0.35s (รวมเข้าเกณฑ์แล้ว 126 จุดจาก 164 — อีก 38 จุดสั้นกว่า cap อยู่แล้วไม่แตะ) ตัดออกรวม 29.2 วินาที (577.51s → 548.30s) เฉลี่ยหลังตัดลงมาอยู่ที่ 0.339s (อยู่ในช่วง 0.33–0.40 เป้าหมาย) ไม่มีแซมเปิลชนเพดานเพิ่มจากการตัด
+
+**วิธี implement ที่ใช้จริง (ต่างจากเวอร์ชันเก่าเล็กน้อย แม่นกว่า):** สำหรับแต่ละช่วงเงียบที่ยาวเกิน target — เก็บส่วนต้นของความเงียบยาว `target-EDGE` วินาที (นับจาก silence_start) แล้วตัดทิ้งตรงกลาง กระโดดไปต่อที่ `silence_end-EDGE` (เก็บ EDGE วินาทีสุดท้ายของความเงียบเดิมไว้ก่อนคำพูดจะเริ่ม เพื่อความเป็นธรรมชาติ) รวมความยาวที่เหลือ = target พอดี ใส่ fade RAMP (4ms, linear) ทั้งฝั่งก่อนตัด (fade out ท้าย chunk) และฝั่งหลังตัด (fade in ต้น chunk ถัดไป) ทุกจุดตัด — ใช้ numpy บน array int16 ตรง ๆ ผ่าน `wave` module ไม่พึ่ง ffmpeg atrim (แม่นกว่าตอนคำนวณ sample-accurate)
+
+**ไฟล์สุดท้าย:** `work/004-cheater-detection/ElevenLabs_004_mastered.wav` — WAV 16-bit 44.1kHz mono, 548.30 วินาที (9:08.30), I -14.9 LUFS · LRA 2.2 · true peak -1.2 dBFS · clipped 0
+
+**วันที่:** 2026-08-15
