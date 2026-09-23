@@ -88,38 +88,53 @@ def make_sources_card(citations, out_path):
 
 
 def make_thanks_card(out_path, handle="@ROONCON"):
-    img, d, horizon_y = base_card(WHITE, TEAL, horizon_frac=0.55)
-    thank_font = ImageFont.truetype(FONT_BOLD, 72)
-    sub_font = ImageFont.truetype(FONT_BOLD, 48)
-    handle_font = ImageFont.truetype(FONT_REG, 40)
+    """การ์ด THANK YOU — เลย์เอาต์ปรับ 2026-09-23 ให้รองรับ YouTube end screen
 
-    center_text(d, "THANK YOU FOR WATCHING", thank_font, 110, fill=DARK)
+    ครึ่งบนของเฟรม (y < 590) และขอบซ้าย/ขวา (x < 690 / x > 1230) ถูกเว้นว่างไว้
+    โดยตั้งใจ สำหรับวางการ์ดวิดีโอของ end screen 2 ใบโดยไม่บังข้อความหรือตัวละคร
+    เนื้อหาทั้งหมดถูกบีบมาอยู่ในคอลัมน์กลาง-ล่าง
+    """
+    img, d, horizon_y = base_card(WHITE, TEAL, horizon_frac=0.52)
+    thank_font = ImageFont.truetype(FONT_BOLD, 60)
+    sub_font = ImageFont.truetype(FONT_BOLD, 44)
+    handle_font = ImageFont.truetype(FONT_REG, 36)
+
+    center_text(d, "THANK YOU FOR WATCHING", thank_font, 600, fill=DARK)
+
+    S = 0.68                      # ย่อตัวละคร/กระดิ่งให้พอดีแถบล่าง
+    w = lambda n: max(3, round(n * S))
+    def box(cx, cy, x0, y0, x1, y1):
+        return [cx + x0 * S, cy + y0 * S, cx + x1 * S, cy + y1 * S]
+    def seg(cx, cy, x0, y0, x1, y1):
+        return [(cx + x0 * S, cy + y0 * S), (cx + x1 * S, cy + y1 * S)]
 
     # @you สติ๊กฟิกเกอร์โบกมือ ตาม Character Bible (เสื้อเขียวหม่น ผมน้ำตาลหม่น)
-    cx, cy = W // 2 - 220, horizon_y - 40
-    d.ellipse([cx - 35, cy - 160, cx + 35, cy - 90], outline=DARK, width=6)
-    d.ellipse([cx - 18, cy - 135, cx - 6, cy - 123], outline=DARK, width=4)
-    d.ellipse([cx + 6, cy - 135, cx + 18, cy - 123], outline=DARK, width=4)
-    d.line([cx - 18, cy - 142, cx - 6, cy - 140], fill=DARK, width=4)
-    d.line([cx + 6, cy - 140, cx + 18, cy - 142], fill=DARK, width=4)
-    d.line([cx, cy - 90, cx, cy + 40], fill=DARK, width=6)
-    d.polygon([(cx - 30, cy - 60), (cx + 30, cy - 60), (cx + 22, cy + 10), (cx - 22, cy + 10)],
-               fill=TEAL, outline=DARK)
-    d.line([cx, cy - 70, cx - 55, cy - 130], fill=DARK, width=6)
-    d.line([cx, cy - 50, cx + 45, cy - 10], fill=DARK, width=6)
-    d.line([cx, cy + 40, cx - 25, cy + 130], fill=DARK, width=6)
-    d.line([cx, cy + 40, cx + 25, cy + 130], fill=DARK, width=6)
-    d.pieslice([cx - 38, cy - 165, cx + 38, cy - 110], 180, 360, fill=BROWN)
+    cx, cy = W // 2 - 140, 815
+    d.ellipse(box(cx, cy, -35, -160, 35, -90), outline=DARK, width=w(6))
+    d.ellipse(box(cx, cy, -18, -135, -6, -123), outline=DARK, width=w(4))
+    d.ellipse(box(cx, cy, 6, -135, 18, -123), outline=DARK, width=w(4))
+    d.line(seg(cx, cy, -18, -142, -6, -140), fill=DARK, width=w(4))
+    d.line(seg(cx, cy, 6, -140, 18, -142), fill=DARK, width=w(4))
+    d.line(seg(cx, cy, 0, -90, 0, 40), fill=DARK, width=w(6))
+    d.polygon([(cx - 30 * S, cy - 60 * S), (cx + 30 * S, cy - 60 * S),
+               (cx + 22 * S, cy + 10 * S), (cx - 22 * S, cy + 10 * S)],
+              fill=TEAL, outline=DARK)
+    d.line(seg(cx, cy, 0, -70, -55, -130), fill=DARK, width=w(6))
+    d.line(seg(cx, cy, 0, -50, 45, -10), fill=DARK, width=w(6))
+    d.line(seg(cx, cy, 0, 40, -25, 130), fill=DARK, width=w(6))
+    d.line(seg(cx, cy, 0, 40, 25, 130), fill=DARK, width=w(6))
+    d.pieslice(box(cx, cy, -38, -165, 38, -110), 180, 360, fill=BROWN)
 
     # ไอคอนกระดิ่ง subscribe
-    bx, by = W // 2 + 180, horizon_y - 90
-    d.polygon([(bx - 45, by + 50), (bx + 45, by + 50), (bx + 30, by - 30), (bx - 30, by - 30)],
-               outline=DARK, width=6)
-    d.ellipse([bx - 12, by - 55, bx + 12, by - 30], outline=DARK, width=6)
-    d.ellipse([bx - 8, by + 50, bx + 8, by + 68], fill=DARK)
+    bx, by = W // 2 + 140, 790
+    d.polygon([(bx - 45 * S, by + 50 * S), (bx + 45 * S, by + 50 * S),
+               (bx + 30 * S, by - 30 * S), (bx - 30 * S, by - 30 * S)],
+              outline=DARK, width=w(6))
+    d.ellipse(box(bx, by, -12, -55, 12, -30), outline=DARK, width=w(6))
+    d.ellipse(box(bx, by, -8, 50, 8, 68), fill=DARK)
 
-    center_text(d, "SUBSCRIBE", sub_font, horizon_y + 130, fill=DARK)
-    center_text(d, handle, handle_font, horizon_y + 195, fill=DARK)
+    center_text(d, "SUBSCRIBE", sub_font, 935, fill=DARK)
+    center_text(d, handle, handle_font, 1000, fill=DARK)
 
     img.save(out_path, quality=95)
     print(f"บันทึกการ์ด THANK YOU ที่ {out_path}")
