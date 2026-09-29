@@ -74,12 +74,21 @@ def make_sources_card(citations, out_path):
 
     center_text(d, "SOURCES", title_font, 90, fill=DARK)
 
+    def wrap(text, max_w=W - 120):
+        # ตัดบรรทัดที่ช่องว่างเมื่อข้อความกว้างเกินการ์ด (ชื่อเปเปอร์ยาว ๆ เคยล้นขอบ — คลิป 010)
+        lines, cur = [], ""
+        for word in text.split(" "):
+            test = f"{cur} {word}".strip()
+            if cur and d.textbbox((0, 0), test, font=item_font)[2] > max_w:
+                lines.append(cur); cur = word
+            else:
+                cur = test
+        return lines + [cur]
+
     y = 240
     for c in citations:
-        center_text(d, c["authors"], item_font, y, fill=DARK)
-        y += 44
-        if c.get("title"):
-            center_text(d, c["title"], item_font, y, fill=DARK)
+        for line in wrap(c["authors"]) + (wrap(c["title"]) if c.get("title") else []):
+            center_text(d, line, item_font, y, fill=DARK)
             y += 44
         y += 16  # ช่องว่างระหว่างรายการ
 
