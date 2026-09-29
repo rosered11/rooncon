@@ -40,7 +40,10 @@
 → 5 ถอด SRT (SayToWords) → 6 Timecode Map + ซับ [timecode-builder]
 → 7 gen ภาพ (Google Flow) → 8 QC ภาพ [image-qc]
 → 9 ตัดต่อ (CapCut) [capcut-edit] → 10 metadata + อัปโหลด
+→ 11 post-mortem ที่ D+7 [analytics-review]   ← วนกลับเข้าขั้น 1 ของคลิปถัดไป
 ```
+
+**ขั้น 11 ไม่ใช่ทางเลือก** — เป็นขั้นที่ปิดลูปให้ตัวเลขจริงย้อนกลับไปแก้บท/thumbnail ของคลิปถัดไป ถ้าข้ามขั้นนี้ ไปป์ไลน์จะผลิตคลิปได้เรื่อย ๆ โดยไม่มีทางรู้ว่าอะไรได้ผล (คลิป 001–009 ไม่เคยเปิดกราฟ retention ดูเลยสักคลิป)
 
 ## Skill ในโปรเจกต์นี้
 
@@ -51,6 +54,7 @@
 | `timecode-builder` | ขั้น 6 | `.claude/skills/timecode-builder/SKILL.md` |
 | `image-qc` | ขั้น 8 | `.claude/skills/image-qc/SKILL.md` |
 | `capcut-edit` | ขั้น 9 | `.claude/skills/capcut-edit/SKILL.md` |
+| `analytics-review` | ขั้น 11 + ทบทวนระดับช่องทุก 4 สัปดาห์ | `.claude/skills/analytics-review/SKILL.md` |
 
 ## Subagent
 
